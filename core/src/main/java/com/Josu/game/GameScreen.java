@@ -1,6 +1,7 @@
 package com.Josu.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -38,8 +39,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         circleColorIndex = 0;
-        
-        Gdx.graphics.setWindowedMode(1920, 1080);
+    
         batch = new SpriteBatch();
         backgroundImage = new Texture("backgroundOsu.png");
         circleImage = new Texture("circle.png");
@@ -137,6 +137,11 @@ public class GameScreen implements Screen {
                 circleVisible = false; // Esconde o círculo
                 circleColorIndex = (circleColorIndex + 1) % circleColors.length; // Próxima cor
             }
+        }
+
+        // Voltar ao menu principal
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MenuScreen(game));
         }
     }
     

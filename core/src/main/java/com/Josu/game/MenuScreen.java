@@ -1,6 +1,7 @@
 package com.Josu.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -8,9 +9,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class MenuScreen implements Screen {
     private final Josu game;
+    private FitViewport viewport;
     private SpriteBatch batch;
     private Texture background;
     private BitmapFont font;
@@ -21,7 +24,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.graphics.setWindowedMode(1920, 1080); // settei para começar em tela cheia já, não sei porq nao está aparecendo a barra de cima ainda
+        viewport = new FitViewport(8, 5);
         batch = new SpriteBatch();
         background = new Texture("backgroundOsu.png"); // Fundo do menu
         font = new BitmapFont(); // Fonte padrão
@@ -51,10 +54,15 @@ public class MenuScreen implements Screen {
             if (mouseY > Gdx.graphics.getHeight() / 2f + 20 && mouseY < Gdx.graphics.getHeight() / 2f + 60) {
                 game.setScreen(new GameScreen(game)); // Vai para o jogo
             } else if (mouseY > Gdx.graphics.getHeight() / 2f - 30 && mouseY < Gdx.graphics.getHeight() / 2f + 10) {
-                System.out.println("josucatch");
+                game.setScreen(new JosuCatch(game));
             } else if (mouseY > Gdx.graphics.getHeight() / 2f - 80 && mouseY < Gdx.graphics.getHeight() / 2f - 40) {
                 Gdx.app.exit(); // Sai do jogo
             }
+        }
+
+        // Voltar ao menu principal
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MenuScreen(game));
         }
     }
 
