@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Josu extends ApplicationAdapter {
+public class JosuCatch extends ApplicationAdapter {
     SpriteBatch spriteBatch;
     FitViewport viewport;
     Texture backgroundTexture;
