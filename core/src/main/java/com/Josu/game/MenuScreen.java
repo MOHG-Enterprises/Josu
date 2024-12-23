@@ -39,8 +39,8 @@ public class MenuScreen implements Screen {
 
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        font.draw(batch, "1. Iniciar Jogo", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f + 40);
-        font.draw(batch, "2. Configurações", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 10);
+        font.draw(batch, "1. Josu!Standart", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f + 40);
+        font.draw(batch, "2. Josu!Catch", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 10);
         font.draw(batch, "3. Sair", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 60);
         batch.end();
 
@@ -51,7 +51,7 @@ public class MenuScreen implements Screen {
             if (mouseY > Gdx.graphics.getHeight() / 2f + 20 && mouseY < Gdx.graphics.getHeight() / 2f + 60) {
                 game.setScreen(new GameScreen(game)); // Vai para o jogo
             } else if (mouseY > Gdx.graphics.getHeight() / 2f - 30 && mouseY < Gdx.graphics.getHeight() / 2f + 10) {
-                System.out.println("Configurações clicadas");
+                System.out.println("josucatch");
             } else if (mouseY > Gdx.graphics.getHeight() / 2f - 80 && mouseY < Gdx.graphics.getHeight() / 2f - 40) {
                 Gdx.app.exit(); // Sai do jogo
             }
