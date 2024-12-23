@@ -12,6 +12,7 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private Texture backgroundImage;
     private Texture circleImage;
+    private Texture circleImage2;
     private Texture[] countdownImages; // Array para as imagens do contador
     private BitmapFont font;
     private float circleX, circleY;
@@ -21,6 +22,14 @@ public class GameScreen implements Screen {
     private boolean circleVisible;
     private float circleTimer; // Controla o tempo do círculo
     private int points;
+    private int circleColorIndex; // Índice para controlar as cores
+    private final float[][] circleColors = {
+        {0.5f, 0f, 0.5f, 1f}, // Roxo
+        {0f, 0.5f, 0f, 1f},   // Verde
+        {0f, 0f, 1f, 1f},     // Azul
+        {1f, 0f, 0f, 1f},     // Vermelho
+        {1f, 0.5f, 0f, 1f}    // Laranja
+    };
 
     public GameScreen(Josu game) {
         this.game = game;
@@ -28,10 +37,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        circleColorIndex = 0;
+        
         Gdx.graphics.setWindowedMode(1920, 1080);
         batch = new SpriteBatch();
         backgroundImage = new Texture("backgroundOsu.png");
         circleImage = new Texture("circle.png");
+        circleImage2 = new Texture("hitcircle.png");
 
         // Inicializa as imagens do contador
         countdownImages = new Texture[4];
@@ -60,18 +72,20 @@ public class GameScreen implements Screen {
         batch.begin();
     
         // Desenha o fundo
-        float scale = Math.min(Gdx.graphics.getWidth() / (float) backgroundImage.getWidth(),
-                               Gdx.graphics.getHeight() / (float) backgroundImage.getHeight());
+        float scale = Math.min(
+            Gdx.graphics.getWidth() / (float) backgroundImage.getWidth(),
+            Gdx.graphics.getHeight() / (float) backgroundImage.getHeight()
+        );
         float x = (Gdx.graphics.getWidth() - backgroundImage.getWidth() * scale) / 2;
         float y = (Gdx.graphics.getHeight() - backgroundImage.getHeight() * scale) / 2;
         batch.draw(backgroundImage, x, y, backgroundImage.getWidth() * scale, backgroundImage.getHeight() * scale);
-
-        // Desenha uma camada escura semi-transparente sobre o fundo
-        batch.setColor(0, 0, 0, 0.5f); // Cor preta com 50% de opacidade
-        batch.draw(backgroundImage, x, y, backgroundImage.getWidth() * scale, backgroundImage.getHeight() * scale);
-        batch.setColor(1, 1, 1, 1); // Reseta a cor para branco total (default)
     
-        // Exibe o contador no centro da tela
+        // Camada escura semi-transparente
+        batch.setColor(0, 0, 0, 0.5f);
+        batch.draw(backgroundImage, x, y, backgroundImage.getWidth() * scale, backgroundImage.getHeight() * scale);
+        batch.setColor(1, 1, 1, 1); // Reseta para branco
+    
+        // Contador
         if (countdownIndex < countdownImages.length) {
             Texture currentImage = countdownImages[countdownIndex];
             float imageWidth = currentImage.getWidth();
@@ -79,43 +93,49 @@ public class GameScreen implements Screen {
             float centerX = (Gdx.graphics.getWidth() - imageWidth) / 2;
             float centerY = (Gdx.graphics.getHeight() - imageHeight) / 2;
             batch.draw(currentImage, centerX, centerY);
-            
+    
             // Atualiza o contador
             countdownTimer -= delta;
             if (countdownTimer <= 0) {
                 countdownTimer = 1f; // Reinicia o timer
-                countdownIndex++; // Vai para a próxima imagem
+                countdownIndex++; // Avança para a próxima imagem
             }
         } else if (circleVisible) {
-            // Exibe o círculo
+            // Exibe o círculo com cor dinâmica
             batch.draw(circleImage, circleX, circleY);
-            circleTimer -= delta;
     
-            // Verifica se o tempo do círculo acabou
+            // Define a cor dinâmica para o circleImage2
+            float[] color = circleColors[circleColorIndex];
+            batch.setColor(color[0], color[1], color[2], color[3]);
+            batch.draw(circleImage2, circleX, circleY);
+            batch.setColor(1, 1, 1, 1); // Reseta para branco
+    
+            // Atualiza o tempo de exibição do círculo
+            circleTimer -= delta;
             if (circleTimer <= 0) {
-                circleVisible = false;
+                circleVisible = false; // Esconde o círculo
+                circleColorIndex = (circleColorIndex + 1) % circleColors.length; // Atualiza o índice da cor
             }
         } else if (!circleVisible && countdownIndex >= countdownImages.length) {
-            // Faz o círculo aparecer quando o contador termina
+            // Faz o círculo aparecer após o contador
             circleVisible = true;
             circleTimer = 3f; // Reseta o tempo do círculo
-    
-            // Gera uma posição aleatória para o círculo
-            generateRandomCirclePosition();
+            generateRandomCirclePosition(); // Gera nova posição aleatória
         }
     
-        // Exibe os pontos no canto superior esquerdo
+        // Exibe os pontos
         font.draw(batch, "Pontos: " + points, 20, Gdx.graphics.getHeight() - 20);
     
         batch.end();
     
-        // Verifica clique no círculo
+        // Detecta clique no círculo
         if (Gdx.input.justTouched() && circleVisible) {
             float mouseX = Gdx.input.getX();
-            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Converte para coordenadas de tela
+            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Converte coordenadas
             if (isCircleClicked(mouseX, mouseY)) {
                 points++; // Adiciona um ponto
                 circleVisible = false; // Esconde o círculo
+                circleColorIndex = (circleColorIndex + 1) % circleColors.length; // Próxima cor
             }
         }
     }
@@ -155,6 +175,7 @@ public class GameScreen implements Screen {
         batch.dispose();
         backgroundImage.dispose();
         circleImage.dispose();
+        circleImage2.dispose();
         for (Texture texture : countdownImages) {
             texture.dispose();
         }
