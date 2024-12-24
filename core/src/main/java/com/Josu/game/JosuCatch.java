@@ -39,14 +39,14 @@ public class JosuCatch implements Screen {
     @Override
     public void show() {
         spriteBatch = new SpriteBatch();
-        viewport = new FitViewport(8, 5);
+        viewport = new FitViewport(16, 9);
         backgroundTexture = new Texture("background.png");
         fruitCatcherTexture = new Texture("fruitCatcher.png");
         dropTexture = new Texture("drop.png");
         dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.mp3"));
         music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
         music.setLooping(true);
-        music.setVolume(0.5f);
+        music.setVolume(0.1f);
         music.play();
 
         fruitCatcherSprite = new Sprite(fruitCatcherTexture);
@@ -62,11 +62,6 @@ public class JosuCatch implements Screen {
         input();
         logic(delta);
         draw();
-
-        // Voltar ao menu principal
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MenuScreen(game));
-        }
     }
 
     private void input() {
@@ -119,6 +114,9 @@ public class JosuCatch implements Screen {
         if (dropTimer > 0.22f) {
             dropTimer = 0;
             createDroplet();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MenuScreen(game));
         }
     }
 

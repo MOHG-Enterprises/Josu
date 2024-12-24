@@ -3,11 +3,14 @@ package com.Josu.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -17,6 +20,9 @@ public class MenuScreen implements Screen {
     private SpriteBatch batch;
     private Texture background;
     private BitmapFont font;
+    private Vector2 touchPos;
+    private Texture imgCatch;
+    private Texture imgStd;
 
     public MenuScreen(Josu game) {
         this.game = game;
@@ -24,10 +30,13 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        viewport = new FitViewport(8, 5);
+        viewport = new FitViewport(16, 9);
         batch = new SpriteBatch();
         background = new Texture("backgroundOsu.png"); // Fundo do menu
+        imgStd = new Texture("circle.png");
+        imgCatch = new Texture("fruitCatcher.png");
         font = new BitmapFont(); // Fonte padrão
+        touchPos = new Vector2();
 
         // botando o cursor 
         Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor.png")); // imagem puxada do assets
@@ -37,16 +46,11 @@ public class MenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.15f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        input();
+        draw();
+    }
 
-        batch.begin();
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        font.draw(batch, "1. Josu!Standart", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f + 40);
-        font.draw(batch, "2. Josu!Catch", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 10);
-        font.draw(batch, "3. Sair", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 60);
-        batch.end();
-
+    private void input(){
         if (Gdx.input.isTouched()) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -59,15 +63,28 @@ public class MenuScreen implements Screen {
                 Gdx.app.exit(); // Sai do jogo
             }
         }
+    }
 
-        // Voltar ao menu principal
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MenuScreen(game));
-        }
+    private void draw(){
+        ScreenUtils.clear(Color.BLACK);
+        viewport.apply();
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+        float newWidth = viewport.getWorldWidth() / 5;
+        float newHeight = viewport.getWorldHeight() / 5;
+
+        batch.begin();
+
+        batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        batch.draw(imgCatch, (viewport.getWorldWidth() - newWidth) / 2, (viewport.getWorldHeight() - newHeight) / 2, newWidth, newHeight);
+        // batch.draw(imgStd , 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+
+        batch.end();
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
+    }
 
     @Override
     public void pause() {}

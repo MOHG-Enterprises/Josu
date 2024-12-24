@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class Josu extends Game {
-    private FitViewport viewport;
-    private OrthographicCamera camera;
+    FitViewport viewport;
+    OrthographicCamera camera;
 
     @Override
     public void create() {
@@ -16,9 +16,9 @@ public class Josu extends Game {
         viewport = new FitViewport(8, 5, camera); // Define o mundo como 8x5 unidades (ajuste conforme necessário)
 
         // Configura o jogo para iniciar em tela cheia
-        if (!Gdx.graphics.isFullscreen()) {
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-        }
+        // if (!Gdx.graphics.isFullscreen()) {
+        //     Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        // }
 
         this.setScreen(new MenuScreen(this)); // Inicia no menu principal
     }
