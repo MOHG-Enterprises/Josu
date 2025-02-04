@@ -3,6 +3,7 @@ package com.Josu.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -24,6 +25,7 @@ public class GameScreen implements Screen {
     private float circleTimer; // Controla o tempo do círculo
     private int points;
     private int circleColorIndex; // Índice para controlar as cores
+    private Sound hitSound;
     private final float[][] circleColors = {
         {0.5f, 0f, 0.5f, 1f}, // Roxo
         {0f, 0.5f, 0f, 1f},   // Verde
@@ -44,6 +46,7 @@ public class GameScreen implements Screen {
         backgroundImage = new Texture("backgroundOsu.png");
         circleImage = new Texture("circle.png");
         circleImage2 = new Texture("hitcircle.png");
+        hitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/drum-hitnormal.ogg"));
 
         // Inicializa as imagens do contador
         countdownImages = new Texture[4];
@@ -133,7 +136,8 @@ public class GameScreen implements Screen {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Converte coordenadas
             if (isCircleClicked(mouseX, mouseY)) {
-                points++; // Adiciona um ponto
+                points++; // Adiciona um ponto 
+                hitSound.play();
                 circleVisible = false; // Esconde o círculo
                 circleColorIndex = (circleColorIndex + 1) % circleColors.length; // Próxima cor
             }

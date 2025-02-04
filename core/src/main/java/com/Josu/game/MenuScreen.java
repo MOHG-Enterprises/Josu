@@ -50,19 +50,23 @@ public class MenuScreen implements Screen {
         draw();
     }
 
-    private void input(){
+    private void input() {
         if (Gdx.input.isTouched()) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-            if (mouseY > Gdx.graphics.getHeight() / 2f + 20 && mouseY < Gdx.graphics.getHeight() / 2f + 60) {
-                game.setScreen(new GameScreen(game)); // Vai para o jogo
-            } else if (mouseY > Gdx.graphics.getHeight() / 2f - 30 && mouseY < Gdx.graphics.getHeight() / 2f + 10) {
+    
+            if (isButtonPressed(mouseY, Gdx.graphics.getHeight() / 2f + 20, 40)) {
+                game.setScreen(new beatmapScreen(game)); // Vai para o jogo
+            } else if (isButtonPressed(mouseY, Gdx.graphics.getHeight() / 2f - 30, 40)) {
                 game.setScreen(new JosuCatch(game));
-            } else if (mouseY > Gdx.graphics.getHeight() / 2f - 80 && mouseY < Gdx.graphics.getHeight() / 2f - 40) {
+            } else if (isButtonPressed(mouseY, Gdx.graphics.getHeight() / 2f - 80, 40)) {
                 Gdx.app.exit(); // Sai do jogo
             }
         }
+    }
+    
+    private boolean isButtonPressed(float mouseY, float buttonY, float buttonHeight) {
+        return mouseY > buttonY && mouseY < buttonY + buttonHeight;
     }
 
     private void draw(){
