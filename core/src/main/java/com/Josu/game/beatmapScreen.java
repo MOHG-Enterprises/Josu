@@ -44,7 +44,7 @@ public class beatmapScreen implements Screen {
         circleTexture = new Texture("circle.png");
         hitCircleTexture = new Texture("hitcircle.png");
         approachCircleTexture = new Texture("approachCircle.png");
-        music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+        music = Gdx.audio.newMusic(Gdx.files.internal("partiu.mp3"));
         hitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/drum-hitnormal.ogg"));
         circles = new ArrayList<>();
         backgroundTexture = new Texture("background.png");
