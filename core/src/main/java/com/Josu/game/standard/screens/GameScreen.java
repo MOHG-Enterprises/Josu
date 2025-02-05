@@ -63,12 +63,12 @@ public class GameScreen implements Screen {
         }
 
         // Load the beatmap
-        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/test/test.osu");
+        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/tsukinami/tsukinami.osu");
         scheduledHitObjects = beatmap.hitObjects;
 
         // Load the song
         if (!beatmap.audioFilename.isEmpty()) {
-            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/test/" + beatmap.audioFilename));
+            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/tsukinami/" + beatmap.audioFilename));
             backgroundMusic.setLooping(false);
         }
 
@@ -101,28 +101,26 @@ public class GameScreen implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        float scaleX = Gdx.graphics.getWidth() / 512f;
-        float scaleY = Gdx.graphics.getHeight() / 384f;
+        float playfieldSize = Math.min(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) * 0.8f;
+        float playfieldX = (Gdx.graphics.getWidth() - playfieldSize) / 2f;
+        float playfieldY = (Gdx.graphics.getHeight() - playfieldSize) / 2f;
 
         float approachDuration = 600f;
 
         Iterator<BeatmapParser.HitObject> schedIterator = scheduledHitObjects.iterator();
         while (schedIterator.hasNext()) {
             BeatmapParser.HitObject hitObject = schedIterator.next();
-            // If you use an approach offset, subtract it here:
             if (hitObject.time - approachDuration <= gameTime) {
-                float circleX = hitObject.x * scaleX - circleTexture.getWidth() / 2f;
-                float circleY = (384 - hitObject.y) * scaleY - circleTexture.getHeight() / 2f;
-                
-                // Calculate the proper number texture index (0–8) and group color:
-                int numberIndex = spawnCount % 9;          // cycles through 0 to 8
+                float circleX = playfieldX + (hitObject.x / 512f) * playfieldSize - circleTexture.getWidth() / 2f;
+                float circleY = playfieldY + ((384 - hitObject.y) / 384f) * playfieldSize - circleTexture.getHeight() / 2f;
+
+                int numberIndex = spawnCount % 9;
                 int groupIndex = (spawnCount / 9) % circleColors.length;
                 float[] color = circleColors[groupIndex];
                 
-                // Use the correct number texture for this circle
                 Circle circle = new Circle(circleTexture, overlayTexture, approachTexture, numberTextures[numberIndex],
                         circleX, circleY, color);
-                spawnCount++; // increment after each spawn
+                spawnCount++;
                 
                 activeCircles.add(circle);
                 schedIterator.remove();
