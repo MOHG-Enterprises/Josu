@@ -38,11 +38,11 @@ public class GameScreen implements Screen {
     private int spawnCount = 0;
 
     private final float[][] circleColors = {
-        {0.5f, 0f, 0.5f, 1f}, // Roxo
-        {0f, 0.5f, 0f, 1f},   // Verde
-        {0f, 0f, 1f, 1f},     // Azul
-        {1f, 0f, 0f, 1f},     // Vermelho
-        {1f, 0.5f, 0f, 1f}    // Laranja
+            { 0.5f, 0f, 0.5f, 1f }, // Roxo
+            { 0f, 0.5f, 0f, 1f }, // Verde
+            { 0f, 0f, 1f, 1f }, // Azul
+            { 1f, 0f, 0f, 1f }, // Vermelho
+            { 1f, 0.5f, 0f, 1f } // Laranja
     };
 
     public GameScreen(Josu game) {
@@ -63,12 +63,12 @@ public class GameScreen implements Screen {
         }
 
         // Load the beatmap
-        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/tsukinami/tsukinami.osu");
+        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/test/test.osu");
         scheduledHitObjects = beatmap.hitObjects;
 
         // Load the song
         if (!beatmap.audioFilename.isEmpty()) {
-            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/tsukinami/" + beatmap.audioFilename));
+            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/test/" + beatmap.audioFilename));
             backgroundMusic.setLooping(false);
         }
 
@@ -112,23 +112,42 @@ public class GameScreen implements Screen {
             BeatmapParser.HitObject hitObject = schedIterator.next();
             if (hitObject.time - approachDuration <= gameTime) {
                 float circleX = playfieldX + (hitObject.x / 512f) * playfieldSize - circleTexture.getWidth() / 2f;
-                float circleY = playfieldY + ((384 - hitObject.y) / 384f) * playfieldSize - circleTexture.getHeight() / 2f;
+                float circleY = playfieldY + ((384 - hitObject.y) / 384f) * playfieldSize
+                        - circleTexture.getHeight() / 2f;
+
+                boolean overlapping;
+                do {
+                    overlapping = false;
+                    float newCenterX = circleX + circleTexture.getWidth() / 2f;
+                    float newCenterY = circleY + circleTexture.getHeight() / 2f;
+
+                    for (Circle c : activeCircles) {
+                        float existingCenterX = c.getX() + c.getWidth() / 2f;
+                        float existingCenterY = c.getY() + c.getHeight() / 2f;
+                        if (Math.abs(newCenterX - existingCenterX) < 1f
+                                && Math.abs(newCenterY - existingCenterY) < 1f) {
+                            overlapping = true;
+                            circleX += 8f;
+                            circleY -= 8f;
+                            break;
+                        }
+                    }
+                } while (overlapping);
 
                 int numberIndex = spawnCount % 9;
                 int groupIndex = (spawnCount / 9) % circleColors.length;
                 float[] color = circleColors[groupIndex];
-                
+
                 Circle circle = new Circle(circleTexture, overlayTexture, approachTexture, numberTextures[numberIndex],
                         circleX, circleY, color);
                 spawnCount++;
-                
+
                 activeCircles.add(circle);
                 schedIterator.remove();
             } else {
                 break;
             }
         }
-
 
         batch.begin();
         for (Circle circle : activeCircles) {
