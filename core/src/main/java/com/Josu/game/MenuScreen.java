@@ -1,4 +1,4 @@
-package com.Josu.game;
+package com.josu.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,13 +8,15 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.josu.game.standard.screens.GameScreen;
 
 public class MenuScreen implements Screen {
     private final Josu game;
-    private FitViewport viewport;
+    private ScreenViewport viewport;
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
     private Texture background;
     private BitmapFont font;
 
@@ -24,50 +26,78 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        viewport = new FitViewport(8, 5);
+        viewport = game.getViewport();
         batch = new SpriteBatch();
-        background = new Texture("backgroundOsu.png"); // Fundo do menu
-        font = new BitmapFont(); // Fonte padrão
-
-        // botando o cursor 
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor.png")); // imagem puxada do assets
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pixmap, pixmap.getWidth() / 2, pixmap.getHeight() / 2)); // configura o cursor, define o hotspot, logo o centro, porq a altura e a largura / 2 resulta no meio, newCursor() é a instancia do mouse com o hotspot.
-        pixmap.dispose(); // retira a memória da imagem ??? (boa prática pra evitar erros, imagino)
+        shapeRenderer = new ShapeRenderer();
+        
+        background = new Texture("images/backgroundOsu.png");
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("images/cursor.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pixmap, pixmap.getWidth() / 2, pixmap.getHeight() / 2));
+        font = new BitmapFont();
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.15f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        viewport.apply();
+        batch.setProjectionMatrix(game.getCamera().combined);
 
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        font.draw(batch, "1. Josu!Standart", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f + 40);
-        font.draw(batch, "2. Josu!Catch", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 10);
-        font.draw(batch, "3. Sair", Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 60);
         batch.end();
 
+        drawDarkContainer();
+
+        batch.begin();
+        font.draw(batch, "1. Josu! Standard Mode", Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f + 50);
+        font.draw(batch, "2. Josu! Catch Mode", Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
+        font.draw(batch, "3. Exit", Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f - 50);
+        batch.end();
+
+        handleInput();
+    }
+
+    private void drawDarkContainer() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.setProjectionMatrix(game.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0, 0, 0, 0.5f);
+
+        float containerX = Gdx.graphics.getWidth() / 2f - 150;
+        float containerY = Gdx.graphics.getHeight() / 2f - 80;
+        float containerWidth = 300;
+        float containerHeight = 180;
+
+        shapeRenderer.rect(containerX, containerY, containerWidth, containerHeight);
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+    }
+
+    private void handleInput() {
         if (Gdx.input.isTouched()) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-            if (mouseY > Gdx.graphics.getHeight() / 2f + 20 && mouseY < Gdx.graphics.getHeight() / 2f + 60) {
-                game.setScreen(new GameScreen(game)); // Vai para o jogo
-            } else if (mouseY > Gdx.graphics.getHeight() / 2f - 30 && mouseY < Gdx.graphics.getHeight() / 2f + 10) {
-                game.setScreen(new JosuCatch(game));
-            } else if (mouseY > Gdx.graphics.getHeight() / 2f - 80 && mouseY < Gdx.graphics.getHeight() / 2f - 40) {
-                Gdx.app.exit(); // Sai do jogo
+            if (mouseY > Gdx.graphics.getHeight() / 2f + 30 && mouseY < Gdx.graphics.getHeight() / 2f + 70) {
+                game.setScreen(new GameScreen(game)); // Standard Mode
+            } else if (mouseY > Gdx.graphics.getHeight() / 2f - 20 && mouseY < Gdx.graphics.getHeight() / 2f + 20) {
+                // game.setScreen(new CatchModeScreen(game)); // Placeholder for Catch Mode
+            } else if (mouseY > Gdx.graphics.getHeight() / 2f - 70 && mouseY < Gdx.graphics.getHeight() / 2f - 30) {
+                Gdx.app.exit(); // Exit Game
             }
         }
 
-        // Voltar ao menu principal
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             game.setScreen(new MenuScreen(game));
         }
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
+    }
 
     @Override
     public void pause() {}
@@ -83,6 +113,7 @@ public class MenuScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
+        shapeRenderer.dispose();
         background.dispose();
         font.dispose();
     }

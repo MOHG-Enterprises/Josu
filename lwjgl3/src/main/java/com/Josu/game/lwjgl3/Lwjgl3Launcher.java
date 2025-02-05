@@ -2,8 +2,7 @@ package com.Josu.game.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.Josu.game.Josu;
-import com.Josu.game.JosuCatch;
+import com.josu.game.Josu;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
