@@ -45,6 +45,12 @@ public class GameScreen implements Screen {
             { 1f, 0.5f, 0f, 1f } // Laranja
     };
 
+    private float overallDifficulty = 5f; // Default OD; could be read from beatmap's [Difficulty] section.
+    private int count300 = 0;
+    private int count100 = 0;
+    private int count50 = 0;
+    private int countMiss = 0;
+
     public GameScreen(Josu game) {
         this.game = game;
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -139,7 +145,7 @@ public class GameScreen implements Screen {
                 float[] color = circleColors[groupIndex];
 
                 Circle circle = new Circle(circleTexture, overlayTexture, approachTexture, numberTextures[numberIndex],
-                        circleX, circleY, color);
+                        circleX, circleY, color, hitObject.time);
                 spawnCount++;
 
                 activeCircles.add(circle);
@@ -153,7 +159,10 @@ public class GameScreen implements Screen {
         for (Circle circle : activeCircles) {
             circle.render(batch);
         }
+        int totalHits = count300 + count100 + count50 + countMiss;
+        float accuracy = totalHits > 0 ? (300 * count300 + 100 * count100 + 50 * count50) / (300f * totalHits) * 100f : 100f;
         font.draw(batch, "Pontos: " + score, 20, Gdx.graphics.getHeight() - 20);
+        font.draw(batch, "Acc: " + String.format("%.2f", accuracy) + "%", 20, Gdx.graphics.getHeight() - 50);
         batch.end();
 
         Iterator<Circle> activeIterator = activeCircles.iterator();
@@ -161,10 +170,9 @@ public class GameScreen implements Screen {
             Circle circle = activeIterator.next();
             circle.update(delta);
             if (!circle.isActive()) {
-                if (circle.wasHit()) {
-                    score++;
-                } else {
-                    score = 0;
+                if (!circle.wasHit()) {
+                    countMiss++;
+                    score = 0; // reset score on miss (if desired)
                 }
                 activeIterator.remove();
             }
@@ -174,20 +182,34 @@ public class GameScreen implements Screen {
     }
 
     private void handleInput() {
-        boolean keyPressed = false;
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z) || Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-            keyPressed = true;
-        }
+        boolean keyPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z) || Gdx.input.isKeyJustPressed(Input.Keys.X);
 
         if (Gdx.input.justTouched() || keyPressed) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-
             for (Circle circle : activeCircles) {
                 if (circle.isClicked(mouseX, mouseY)) {
+                    // Compute timing offset:
+                    float offset = Math.abs(gameTime - circle.getScheduledHitTime());
+                    // Calculate hit windows based on OD:
+                    float threshold300 = 80 - 6 * overallDifficulty;
+                    float threshold100 = 140 - 8 * overallDifficulty;
+                    float threshold50 = 200 - 10 * overallDifficulty;
+                    if (offset <= threshold300) {
+                        count300++;
+                        score++;
+                    } else if (offset <= threshold100) {
+                        count100++;
+                        score++;
+                    } else if (offset <= threshold50) {
+                        count50++;
+                        score++;
+                    } else {
+                        countMiss++;
+                        score = 0; // reset score on a poor hit
+                    }
                     circle.hit();
-                    break;
+                    break; // Process one circle per input.
                 }
             }
         }
@@ -228,5 +250,6 @@ public class GameScreen implements Screen {
         circleTexture.dispose();
         overlayTexture.dispose();
         approachTexture.dispose();
+        font.dispose();
     }
 }

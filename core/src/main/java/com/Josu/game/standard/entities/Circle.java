@@ -19,6 +19,7 @@ public class Circle {
     private Sound hitSound;
     private boolean active; // Indicates if the circle is still active (clickable/visible)
     private boolean hit = false;
+    private float scheduledHitTime;
     
     // Constant for the hit sound path
     private static final String HIT_SOUND_PATH = "sounds/drum-hitnormal.ogg";
@@ -32,9 +33,10 @@ public class Circle {
      * @param screenX the x-coordinate (in screen space) for the circle
      * @param screenY the y-coordinate (in screen space) for the circle
      * @param color a float array representing RGBA values for tinting the overlay
+     * @param scheduleHitTime
      */
     public Circle(Texture texture, Texture overlayTexture, Texture approachCircleTexture, Texture numberTexture,
-                  float screenX, float screenY, float[] color) {
+                  float screenX, float screenY, float[] color, float scheduleHitTime) {
         this.texture = texture;
         this.overlayTexture = overlayTexture;
         this.approachCircleTexture = approachCircleTexture;
@@ -46,6 +48,7 @@ public class Circle {
         this.approachTimer = 0f;
         this.hitSound = Gdx.audio.newSound(Gdx.files.internal(HIT_SOUND_PATH));
         this.active = true;
+        this.scheduledHitTime = scheduleHitTime;
     }
 
     /**
@@ -128,6 +131,10 @@ public class Circle {
         resetApproachCircle();
         hit = true;
         active = false;
+    }
+
+    public float getScheduledHitTime() {
+        return scheduledHitTime;
     }
 
     /**
