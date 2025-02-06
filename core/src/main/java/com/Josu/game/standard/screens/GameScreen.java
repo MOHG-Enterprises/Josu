@@ -29,6 +29,8 @@ public class GameScreen implements Screen {
     private Texture circleTexture, overlayTexture, approachTexture;
     private Texture[] numberTextures;
 
+    private Texture judgment100, judgment50, judgmentMiss;
+
     private float gameTime;
     private boolean songStarted = false;
 
@@ -63,18 +65,22 @@ public class GameScreen implements Screen {
         overlayTexture = new Texture("images/hitcircle.png");
         approachTexture = new Texture("images/approachcircle.png");
 
+        judgment50 = new Texture("images/hit/50.png");
+        judgment100 = new Texture("images/hit/100.png");
+        judgmentMiss = new Texture("images/hit/miss.png");
+
         numberTextures = new Texture[9];
         for (int i = 0; i < 9; i++) {
             numberTextures[i] = new Texture("images/count/default-" + (i + 1) + ".png");
         }
 
         // Load the beatmap
-        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/test/test.osu");
+        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/tsukinami/tsukinami.osu");
         scheduledHitObjects = beatmap.hitObjects;
 
         // Load the song
         if (!beatmap.audioFilename.isEmpty()) {
-            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/test/" + beatmap.audioFilename));
+            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/tsukinami/" + beatmap.audioFilename));
             backgroundMusic.setLooping(false);
         }
 
@@ -183,37 +189,49 @@ public class GameScreen implements Screen {
 
     private void handleInput() {
         boolean keyPressed = Gdx.input.isKeyJustPressed(Input.Keys.Z) || Gdx.input.isKeyJustPressed(Input.Keys.X);
-
+    
         if (Gdx.input.justTouched() || keyPressed) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
             for (Circle circle : activeCircles) {
                 if (circle.isClicked(mouseX, mouseY)) {
-                    // Compute timing offset:
+                    // Compute timing offset in ms:
                     float offset = Math.abs(gameTime - circle.getScheduledHitTime());
                     // Calculate hit windows based on OD:
                     float threshold300 = 80 - 6 * overallDifficulty;
                     float threshold100 = 140 - 8 * overallDifficulty;
                     float threshold50 = 200 - 10 * overallDifficulty;
+                    Texture judgment = null;
                     if (offset <= threshold300) {
                         count300++;
                         score++;
+                        judgment = null; // Perfect hit (300) uses no extra image.
+                        System.out.println("300");
                     } else if (offset <= threshold100) {
                         count100++;
                         score++;
+                        judgment = judgment100;
+                        System.out.println("100");
                     } else if (offset <= threshold50) {
                         count50++;
                         score++;
+                        judgment = judgment50;
+                        System.out.println("50");
                     } else {
                         countMiss++;
-                        score = 0; // reset score on a poor hit
+                        score = 0; // Reset score on a poor hit.
+                        judgment = judgmentMiss;
+                        System.out.println("miss");
                     }
-                    circle.hit();
-                    break; // Process one circle per input.
+                    // Pass the judgment texture (which may be null) to the circle:
+                    circle.hit(judgment);
+                    break; // Process only one circle per input.
                 }
             }
         }
     }
+    
+    
 
     @Override
     public void resize(int width, int height) {
@@ -250,6 +268,9 @@ public class GameScreen implements Screen {
         circleTexture.dispose();
         overlayTexture.dispose();
         approachTexture.dispose();
+        judgment100.dispose();
+        judgment50.dispose();
+        judgmentMiss.dispose();
         font.dispose();
     }
 }
