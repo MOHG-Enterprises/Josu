@@ -74,11 +74,11 @@ public class GameScreen implements Screen {
             numberTextures[i] = new Texture("images/count/default-" + (i + 1) + ".png");
         }
 
-        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/tsukinami/tsukinami.osu");
+        BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/megalovania/megalovania.osu");
         scheduledHitObjects = beatmap.hitObjects;
 
         if (!beatmap.audioFilename.isEmpty()) {
-            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/tsukinami/" + beatmap.audioFilename));
+            backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/megalovania/" + beatmap.audioFilename));
             backgroundMusic.setLooping(false);
         }
 
