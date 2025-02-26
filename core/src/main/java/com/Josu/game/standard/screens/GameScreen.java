@@ -47,7 +47,7 @@ public class GameScreen implements Screen {
             { 1f, 0.5f, 0f, 1f } // Laranja
     };
 
-    private float overallDifficulty = 5f; // Default OD; could be read from beatmap's [Difficulty] section.
+    private float overallDifficulty = 1f;
     private int count300 = 0;
     private int count100 = 0;
     private int count50 = 0;
@@ -74,11 +74,9 @@ public class GameScreen implements Screen {
             numberTextures[i] = new Texture("images/count/default-" + (i + 1) + ".png");
         }
 
-        // Load the beatmap
         BeatmapParser.BeatmapData beatmap = BeatmapParser.parse("beatmaps/tsukinami/tsukinami.osu");
         scheduledHitObjects = beatmap.hitObjects;
 
-        // Load the song
         if (!beatmap.audioFilename.isEmpty()) {
             backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("beatmaps/tsukinami/" + beatmap.audioFilename));
             backgroundMusic.setLooping(false);
@@ -198,9 +196,10 @@ public class GameScreen implements Screen {
                     // Compute timing offset in ms:
                     float offset = Math.abs(gameTime - circle.getScheduledHitTime());
                     // Calculate hit windows based on OD:
-                    float threshold300 = 80 - 6 * overallDifficulty;
+                    float threshold300 = 100 - 6 * overallDifficulty;
                     float threshold100 = 140 - 8 * overallDifficulty;
                     float threshold50 = 200 - 10 * overallDifficulty;
+                    System.out.println(offset);
                     Texture judgment = null;
                     if (offset <= threshold300) {
                         count300++;
